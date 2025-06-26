@@ -1,0 +1,18 @@
+.board {
+    display: grid;
+    width: inherit;
+    aspect-ratio: inherit;
+    gap: 5px;
+    background-color: black;
+    border: 10px solid;
+    border-color: black;
+    /* TODO find a way to create SSOT for grid size here and in Board.tsx */
+    grid-template-rows: repeat(8, 1fr);
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.board-container {
+    width: 80%;
+    aspect-ratio: 1/1;
+    padding: 10%;
+}
