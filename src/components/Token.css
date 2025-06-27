@@ -6,3 +6,15 @@
     margin: auto;
     padding: 10%;
 }
+
+.none {
+    background-color: green;
+}
+
+.black {
+    background-color: black;
+}
+
+.white {
+    background-color: white;
+}

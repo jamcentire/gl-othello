@@ -6,9 +6,20 @@ import './Token.css';
 // on the side of the board, and that show the tokens flipping when you make a move
 // (rather than just changing color). Each of these wants a separate token component.
 
-const Token = () => {
+export const TokenType = {
+  NONE: 'none',
+  BLACK: 'black',
+  WHITE: 'white'
+}
+
+interface TokenProps {
+  tokenType: string;
+  key: string;
+}
+
+const Token = (props: TokenProps) => {
   return (
-    <div className="game-token"></div>
+    <div className={`game-token ${props.tokenType}`} key={props.key}></div>
   )
 }
 

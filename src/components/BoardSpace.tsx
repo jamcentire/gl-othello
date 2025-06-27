@@ -1,14 +1,16 @@
+import { ReactElement } from 'react';
 import './BoardSpace.css'
 import Token from './Token';
 
 interface BoardSpaceProps {
-    key: string; // In format '{row_idx}-{col_idx}'
+    token: ReactElement<typeof Token>;
+    key: string;
 }
 
 const BoardSpace = (props: BoardSpaceProps) => {
   return (
-    <div className='board-space'>
-      <Token></Token>
+    <div className='board-space' key={props.key}>
+      {props.token}
     </div>
   )
 }
