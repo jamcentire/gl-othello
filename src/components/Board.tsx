@@ -18,7 +18,7 @@ const Board = () => {
 
   // Shortcut function so we don't have to write ternaries everywhere
   const oppositeColor = (color: string): string => {
-    return color === TokenType.BLACK ? TokenType.WHITE : TokenType.BLACK
+    return color === TokenType.DARK ? TokenType.LIGHT : TokenType.DARK
   }
   // This is not really necessary but makes the code cleaner
   const coordsAreInBounds = (x: number, y: number): boolean => {
@@ -34,7 +34,7 @@ const Board = () => {
     // TODO revert this to [number, number] for clarity?
     startCoords: number[],
     direction: number[],
-    tokenColor: string // This is the color of tokens to look for, not to flip to
+    tokenColor: string // Color of the anchor/closing token
   ): number[][] => {
     var flippableTokenCoords = []
     let [x, y] = startCoords;
@@ -48,17 +48,21 @@ const Board = () => {
       x = x + dx
       y = y + dy
 
-      if (boardState[x][y] === tokenColor) {
-        // If token is desired color, log it
+      // If token is opposing color, log it
+      if (boardState[x][y] === oppositeColor(tokenColor)) {
         flippableTokenCoords.push([x,y])
-      } else if (boardState[x][y] === oppositeColor(tokenColor)) {
-        // If we encounter original token color, return logged spaces
+
+      // If we encounter original token color, return logged spaces
+      } else if (boardState[x][y] === tokenColor) {
         return flippableTokenCoords
+
+      // If we hit an empty space, return nothing
+      } else if (boardState[x][y] === TokenType.NONE) {
+        return []
       }
     }
 
-    // If we reach the end of the board or of the token row without hitting a closing token,
-    // we return nothing
+    // If we reach the end of the board without hitting a closing token, we return nothing
     return []
 
     }
@@ -71,17 +75,13 @@ const Board = () => {
     tokenColor: string // Color of the placed token
   ): number[][] => {
     var allFlippableTokenCoords: number[][] = []
-    const colorToFlip = tokenColor === TokenType.BLACK ? TokenType.WHITE : TokenType.BLACK
 
     // Aggregate flippable tokens in each direction to get total
     DIRECTIONS.forEach((direction) => {
       let temp = getFlippableTokenCoordsInDirection(
-        coords, direction, colorToFlip
+        coords, direction, tokenColor
       )
       allFlippableTokenCoords = allFlippableTokenCoords.concat(temp)
-      //allFlippableTokenCoords.concat(getFlippableTokenCoordsInDirection(
-      //  coords, direction, colorToFlip
-      //))
     })
 
     return allFlippableTokenCoords
@@ -104,6 +104,7 @@ const Board = () => {
       return
     }
     setTokensToColor(tokensToFlip.concat([[x,y]]), activePlayer);
+    setActivePlayer(oppositeColor(activePlayer));
 
   }
 
@@ -117,15 +118,16 @@ const Board = () => {
   );
 
   // Setting initial board state as defined in Othello rules
-  initialBoardState[3][3] = TokenType.WHITE
-  initialBoardState[4][4] = TokenType.WHITE
-  initialBoardState[3][4] = TokenType.BLACK
-  initialBoardState[4][3] = TokenType.BLACK
+  initialBoardState[3][3] = TokenType.LIGHT
+  initialBoardState[4][4] = TokenType.LIGHT
+  initialBoardState[3][4] = TokenType.DARK
+  initialBoardState[4][3] = TokenType.DARK
 
   // State comprises a 2d array of TokenType strings
   const [boardState, setBoardState] = useState<any[][]>(initialBoardState);
   // TODO work turns into logic and meld tokenType with player color
-  const [activePlayer, setActivePlayer] = useState<string>('black');
+  // TODO separate player id from token type
+  const [activePlayer, setActivePlayer] = useState<string>('dark');
 
   ///////////////////////////////////////////
   ////////// DEFINE GRID COMPONENT /////////////
