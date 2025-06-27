@@ -6,6 +6,7 @@ import './Token.css';
 // on the side of the board, and that show the tokens flipping when you make a move
 // (rather than just changing color). Each of these wants a separate token component.
 
+// TODO change to dark and light
 export const TokenType = {
   NONE: 'none',
   BLACK: 'black',
