@@ -1,0 +1,18 @@
+/* As I was coming up on time here, I used chatgpt to generate all of this */
+.title-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* horizontal centering */
+  align-items: center;
+  text-align: center;       /* center text within the div */
+}
+
+.turn-indicator {
+  font-size: 3rem;          /* adjust for large text */
+  font-weight: bold;
+}
+
+.event-indicator {
+  font-size: 1.4rem;          /* adjust for large text */
+  margin-top: 0.5rem;
+}

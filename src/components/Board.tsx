@@ -3,8 +3,9 @@ import BoardSpace from './BoardSpace';
 import Token from './Token';
 import './Board.css';
 
-export const GameEvents = {
+export const GameEvent = {
   NO_MOVES_AVAILABLE: 'no_moves',
+  MOVE_MADE: 'move_made',
   VICTORY: 'victory'
 }
 
@@ -13,30 +14,29 @@ export const PlayerColor = {
   LIGHT: 'light'
 }
 
-// TODO fix function typing?
 interface GameBoardProps {
   activePlayer: string,
-  setActivePlayer: any,
-  triggerEvent: any
+  setActivePlayer: (player: string) => void,
+  triggerEvent: (event: string, player: string) => void
 }
 
-const GRID_SIZE = 4;
+const GRID_SIZE = 8;
 
 // Represents the 8 traversable directions on the board as [dx, dy]
 const DIRECTIONS = [
   [0,1], [1,0], [0, -1], [-1, 0],
   [1, 1], [1, -1], [-1, 1], [-1, -1]
 ]
+// Takes in PlayerColor and returns opposite PlayerColor
+export const oppositeColor = (color: string): string => {
+  return color === PlayerColor.DARK ? PlayerColor.LIGHT : PlayerColor.DARK
+}
+
 
 const Board = (props: GameBoardProps) => {
   ///////////////////////////////////////////
   ////////// HELPER FUNCTIONS ///////////////
   ///////////////////////////////////////////
-
-  // Takes in PlayerColor and returns opposite PlayerColor
-  const oppositeColor = (color: string): string => {
-    return color === PlayerColor.DARK ? PlayerColor.LIGHT : PlayerColor.DARK
-  }
 
   // Checks whether a set of coordinates are within the bounds of the board
   const coordsAreInBounds = (x: number, y: number): boolean => {
@@ -135,23 +135,58 @@ const Board = (props: GameBoardProps) => {
     return false
   }
 
+  // Calculate score, and trigger a victory event
+  const handleGameEnd = () => {
+    var light_ct = 0;
+    var dark_ct = 0;
+
+    for (let x = 0; x < GRID_SIZE; x++) {
+      for (let y = 0; y < GRID_SIZE; y++) {
+        if (boardState[x][y] === PlayerColor.LIGHT) {
+          light_ct++;
+        }
+        else if (boardState[x][y] === PlayerColor.DARK) {
+          dark_ct++
+        }
+      }
+    }
+
+    if (light_ct > dark_ct) {
+      props.triggerEvent(GameEvent.VICTORY, PlayerColor.LIGHT)
+    } else if (dark_ct > light_ct) {
+      props.triggerEvent(GameEvent.VICTORY, PlayerColor.DARK)
+    } else {
+      // This game can end in a draw
+      props.triggerEvent(GameEvent.VICTORY, '')
+    }
+  }
+
   // Logic for advancing turn, including determining availability of player moves, and triggering
   // game end if necessary
   const handleAdvanceTurn = () => {
     // If the next player may make a move, change to their turn
     if (moveIsAvailableForPlayer(oppositeColor(props.activePlayer))) {
       props.setActivePlayer(oppositeColor(props.activePlayer));
-      return
+      props.triggerEvent(GameEvent.MOVE_MADE, props.activePlayer);
     }
-    else {
-      // Otherwise, keep player turn the same, and flash message that player turn has been skipped
-      props.triggerEvent(GameEvents.NO_MOVES_AVAILABLE, oppositeColor(props.activePlayer))
+    // If neither the next nor the current player can make another move, trigger the game's end
+    else if (!moveIsAvailableForPlayer(props.activePlayer)) {
+      handleGameEnd();
+    } else {
+      // Otherwise, keep player turn the same, and fire turn skip event for other player
+      props.triggerEvent(GameEvent.NO_MOVES_AVAILABLE, oppositeColor(props.activePlayer))
     }
   }
 
   // Handler for a player clicking a space. Searches for flippable tokens, flips them and
   // advances turn if any exist. Otherwise, does nothing
   const handleBoardClick = (x: number, y: number) => {
+    // If the space is occupied by a token already, ignore
+    if (boardState[x][y].length > 0) {
+      return
+    }
+
+    // Otherwise, search for flippable tokens
     const tokensToFlip = getFlippableTokenCoordsForMove([x,y], props.activePlayer)
     if (tokensToFlip.length === 0) {
       return
@@ -164,9 +199,8 @@ const Board = (props: GameBoardProps) => {
   //////////// INITIALIZE STATE /////////////
   ///////////////////////////////////////////
 
-  // TODO set this type back to string[][]
   // Initialize board state as all empty spaces (empty strings)
-  let initialBoardState: any[][] = Array.from({ length: GRID_SIZE }, () =>
+  let initialBoardState: string[][] = Array.from({ length: GRID_SIZE }, () =>
     new Array(GRID_SIZE).fill('')
   );
 
@@ -178,7 +212,7 @@ const Board = (props: GameBoardProps) => {
   initialBoardState[halfGridSize][halfGridSize - 1] = PlayerColor.LIGHT
 
   // State comprises a 2d array of PlayerColor strings
-  const [boardState, setBoardState] = useState<any[][]>(initialBoardState);
+  const [boardState, setBoardState] = useState<string[][]>(initialBoardState);
 
   ///////////////////////////////////////////
   ///////// DEFINE GRID COMPONENT ///////////
