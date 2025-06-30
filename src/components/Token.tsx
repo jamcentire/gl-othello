@@ -5,20 +5,15 @@ import './Token.css';
 // I'm envisioning graphical extensions of this game that show you your pile of tokens
 // on the side of the board, and that show the tokens flipping when you make a move
 // (rather than just changing color). Each of these wants a separate token component.
-export const TokenType = {
-  NONE: 'none',
-  DARK: 'dark',
-  LIGHT: 'light'
-}
-
 interface TokenProps {
-  tokenType: string;
+  tokenColor: string;
   key: string;
 }
 
 const Token = (props: TokenProps) => {
+  const tokenType = props.tokenColor.length > 0 ? props.tokenColor : 'none'
   return (
-    <div className={`game-token ${props.tokenType}`} key={props.key}></div>
+    <div className={`game-token ${tokenType}`} key={props.key}></div>
   )
 }
 
