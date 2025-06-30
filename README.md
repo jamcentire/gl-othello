@@ -1,46 +1,27 @@
-# Getting Started with Create React App
+# Othello
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+To run this game, simply run npm install and npm start.
 
-## Available Scripts
+Once the game has booted up, click on the board to place a disc, with black playing first. If you've finished a game and would like to play another, just reload the page!
 
-In the project directory, you can run:
+## Rough working process
 
-### `npm start`
+I began my work by creating the building blocks of this game: the tsx/react components for the game board, board spaces, and tokens. I put a bit of styling on these, and then used them to trial my work as I built out the rest. Speaking of trials, You will find that tests are conspicuously absent from this project. As a quick demo project, where I could hand test all of the edge cases that I was concerned about, I did not think that implementing tests was worth the development time. If this project continued, I would add them.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+I debated a bit on how to handle the hierarchy and props of board state with my components. I wanted the higher-level board component to hold all of the relevant state information: the spaces and tokens do not need to track a changing internal state. With the obvious hierarchy of board -> space -> token, I initially had the board pass each space the state information about what token occupied it (or if none did). However, this created unnecessary prop drilling, and I quickly realized that having the board pass the token itself made more sense. You'll notice that every space has a token component, even if a token does not exist there in the board state. This is because I found it cleaner to simply set an absent token's color to that of the board space, than to conditionally add and create props. Doing it this way means that every component is created on the initial render, and placing tokens on the board just changes styling.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+After building basic components, I moved on to implementing board state (i.e., the ability to put tokens on the board). As I mention above, this state was not directly coupled to the components that I used. Instead, board state was a 2d array with a string at each coordinate pair representing the token that existed there (or an empty string, for no token). I thought about making each entry be an object instead of a string. This would allow me to hold more information about each space. Specifically, this could have been useful for determining available moves for a player. However, there was no information that I needed that could not be derived from a simpler state, and so I chose to keep it simple.
 
-### `npm test`
+Once the bones were there, I introduced an onclick handler for my boardspace component in order to place tokens. Then I moved to only being able to place tokens in valid spaces. This was all hardcoded into playing as dark. From there, I introduced a turn state which allowed me to play both white and black and see the game progress organically. This allowed me to test most of the edge cases that I was worried about, and I caught a few things like being able to flip discs across empty space.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+At this point, I realized that I wanted to be able to show things to the player (current turn, skipped turns, a game over, e.g.), and that I should introduce another component above the game board, which is why I built GameScreen. I moved the activePlayer state to be defined and managed there, and passed down to the board (along with a setter).
 
-### `npm run build`
+Finally, I built out handling for the game ending and a player losing a turn due to not having any possible moves. This is the biggest ugly point in my code, as I see it, and why I might have chosen to let my state (as mentioned above) track whether a move was valid for each space. Instead of doing it this way, I did a brute force-ish pattern, and simply used the function that I had previously built to check if a move was valid to check every empty space on the board. If none were valid, then there were no valid moves, and the player's turn was skipped. While this solution is a bit ugly, I believe that it's the most efficient. Every token placement on the board changes what spaces are valid to play on, mmeaning that there is no real way to avoid doing the same validity check many times over. There is likely a heuristic / mathematical way to determine exactly which spaces need to be rechecked after a token is placed, which would cut down on the processing. But this is a game that we expect to have no more than 60 spaces to check at any given time, so that seems like more trouble than it's worth. I did poke a bit online to see if there was a general mathematical/logical formula that I could use to determine if any possible move existed without having to check individual spaces at all. But alas, no such formula exists.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Other than that, this piece was relatively simple. I introduced a triggerEvent callback function so that my board component could notify the screen of events like a turn skip or a victory, and that was the end of my work. Obviously I'm leaving out a lot here, but I'm sure we'll have time to go over it when we talk.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## What I didn't do and what I'd like to do
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+I only used React and Typescript to develop this: no Vite or Redux or any other framework. In some cases (like for redux) it's because I thought that the tool would be overkill for the job. For some of the other tools, it's because I'm not as familiar with them. I did start off trying to use semantic ui (which I've used before) to streamline the component building/styling, but I found that my use cases were not complex enough that it would really speed up development time.
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Some things that I didn't include that I would like to: a reset button, so that you can start a new game without reloading the page. Better styling in general. Brief descriptive text of the game, and how to play. A way for players to enter a name that the game will address them by (instead of just saying Light and Dark). This last one is also another good reason for using a GameScreen component, as that is a piece of state that the game board very definitively does not need to know about.
