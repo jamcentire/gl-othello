@@ -6,9 +6,10 @@
     background-color: black;
     border: 10px solid;
     border-color: black;
-    /* TODO find a way to create SSOT for grid size here and in Board.tsx */
-    grid-template-rows: repeat(8, 1fr);
-    grid-template-columns: repeat(8, 1fr);
+    /* NOTE: given time, I would consider a library/framework like Tailwind to share
+    this constant across the GRID_SIZE used in Board.tsx  */
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr);
 }
 
 .board-container {
