@@ -25,3 +25,8 @@ Other than that, this piece was relatively simple. I introduced a triggerEvent c
 I only used React and Typescript to develop this: no Vite or Redux or any other framework. In some cases (like for redux) it's because I thought that the tool would be overkill for the job. For some of the other tools, it's because I'm not as familiar with them. I did start off trying to use semantic ui (which I've used before) to streamline the component building/styling, but I found that my use cases were not complex enough that it would really speed up development time.
 
 Some things that I didn't include that I would like to: a reset button, so that you can start a new game without reloading the page. Better styling in general. Brief descriptive text of the game, and how to play. A way for players to enter a name that the game will address them by (instead of just saying Light and Dark). This last one is also another good reason for using a GameScreen component, as that is a piece of state that the game board very definitively does not need to know about.
+
+## A final note on Create React App
+
+I used this tool to generate the skeleton for my project. Now that I'm trying to package everything, I'm running into dependency and deprecation issues and I've learned that this tool was deprecated in February of this year, with the recommended replacement being Vite. So, I guess I'll have all the more motivation to look into your tooling! Lesson learned. I've added an override in the dependencies to make them work with the version of typescript used elsewhere in the project. It will likely give you some warnings when you run npm install, but the application itself should run fine.
+
